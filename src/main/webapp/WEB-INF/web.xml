@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+  <!--filter check exist session for sign in-->
+  <filter>
+    <filter-name>AuthFilter</filter-name>
+    <filter-class>org.gurenko.vladislav.tasklistwebservice.servlets.filter.LoginFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>AuthFilter</filter-name>
+    <url-pattern>/</url-pattern>
+  </filter-mapping>
+
+  <!-- custom context listener for init and shutdown (closing connection pool, avoiding errors with JDBC driver)-->
+  <listener>
+    <listener-class>org.gurenko.vladislav.tasklistwebservice.util.MyContextListener</listener-class>
+  </listener>
+
+  <!-- setting session timeout to 10 minutes-->
+  <session-config>
+    <session-timeout>10</session-timeout>
+  </session-config>
+</web-app>

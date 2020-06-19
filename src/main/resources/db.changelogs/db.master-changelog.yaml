@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - logicalFilePath: db/changelogs/db.master-changelog.yaml
+  - preConditions:
+    - runningAs:
+         username:  root
+  - changeSet:
+      id: 1.0.0
+      author: vladislav.gurenko
+      changes:
+        - createTable:
+            tableName: goals
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: goal_id
+                  type: INT
+              -
