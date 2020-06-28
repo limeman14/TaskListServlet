@@ -1,4 +1,4 @@
-package org.gurenko.vladislav.tasklistwebservice.servlets.auth;
+package org.gurenko.vladislav.tasklistwebservice.controller.auth;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,7 +16,7 @@ public class LogoutServlet extends HttpServlet {
             throws ServletException, IOException {
 
 
-        HttpSession session = req.getSession();
+        HttpSession session = req.getSession(false);
 
         session.invalidate();
         resp.sendRedirect("/login");

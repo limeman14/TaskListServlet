@@ -13,7 +13,7 @@
 <h2>Все задачи</h2><button id="show-add-task-form">Добавить дело</button>
 
 <div id="task-form">
-    <form method="post" action="${pageContext.request.contextPath}/tasks/">
+    <form>
         <h2>Добавление задачи</h2>
 
         <label>Название задачи: </label>
@@ -23,19 +23,35 @@
         <label>Срок выполнения: </label>
         <input type="datetime-local" name="due_date" value="">
         <label>Выполнено? : </label>
-        <input type="checkbox" name="is_done" value="false">
+        <input type="checkbox" id="checkbox_check" name="is_done" value="false">
         <input hidden type="number" name="creator_id" value="${sessionScope.userId}">
-        <button id="save_task"type="submit">Сохранить</button>
+        <button id="save_task">Сохранить</button>
     </form>
 </div>
 
 
-<c:forEach var="task" items="${sessionScope.tasks}">
+
+To set methods PUT and DELETE I perform as following:
+
+<form
+        method="PUT"
+        action="domain/route/param?query=value"
+>
+    <input type="hidden" name="delete_id" value="1" />
+    <input type="hidden" name="put_id" value="1" />
+    <input type="text" name="put_name" value="content_or_not" />
+    <div>
+        <button name="update_data">Save changes</button>
+        <button name="remove_data">Remove</button>
+    </div>
+</form>
+
+<c:forEach var="task" items="${requestScope.tasks}">
     <ul>
         Название: <c:out value="${task.taskName}"/> <br>
         Описание: <c:out value="${task.description}"/> <br>
         Срок выполнения: <c:out value="${task.dueDate}"/> <br>
-        Выполнено?: <c:out value="${task.done}"/> <br>
+        Выполнено?: <c:out value="${task.isDone}"/> <br>
 
         <form method="get" action="<c:url value='/tasks/${task.id}'/>">
             <input type="number" hidden name="id" value="${task.id}"/>

@@ -6,19 +6,13 @@
   <!--filter check exist session for sign in-->
   <filter>
     <filter-name>AuthFilter</filter-name>
-    <filter-class>org.gurenko.vladislav.tasklistwebservice.servlets.filter.LoginFilter</filter-class>
+    <filter-class>org.gurenko.vladislav.tasklistwebservice.controller.filter.LoginFilter</filter-class>
   </filter>
 
   <filter-mapping>
     <filter-name>AuthFilter</filter-name>
     <url-pattern>/</url-pattern>
   </filter-mapping>
-
-  <!-- custom context listener for init and shutdown (closing connection pool, avoiding errors with JDBC driver)-->
-  <listener>
-    <listener-class>org.gurenko.vladislav.tasklistwebservice.util.MyContextListener</listener-class>
-  </listener>
-
   <!-- setting session timeout to 10 minutes-->
   <session-config>
     <session-timeout>10</session-timeout>

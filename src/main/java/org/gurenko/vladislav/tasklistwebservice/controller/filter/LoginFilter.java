@@ -1,4 +1,4 @@
-package org.gurenko.vladislav.tasklistwebservice.servlets.filter;
+package org.gurenko.vladislav.tasklistwebservice.controller.filter;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;

@@ -2,34 +2,33 @@ package org.gurenko.vladislav.tasklistwebservice.util;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 
+/**
+ * Custom context listener for init and shutdown (closing connection pool,
+ * avoiding errors with JDBC driver)
+ */
+
+@WebListener
 public class MyContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         System.out.println("************** Starting up! **************");
-
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         System.out.println("************** Shutting down! **************");
-
-        //Closing connections in connection pool
-
         System.out.println("Closing All Connections from Connection Pool");
-        try {
-            ConnectionPool.getInstance().clearConnectionQueue();
-        } catch (ConnectionPoolException e) {
-            e.printStackTrace();
-        }
+
+        DataSource.terminate();
 
         //Manually deregistering MySQL JDBC driver
 

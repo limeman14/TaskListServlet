@@ -19,11 +19,5 @@ public class User {
     private String firstName;
 
     private String lastName;
-
-    private UserRole role;
-
-    public enum UserRole {
-        USER, UNKNOWN
-    }
 }
 

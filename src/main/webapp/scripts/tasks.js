@@ -12,19 +12,28 @@ $(function () {
     });
 
     //Adding task
-    $('#save_task').submit(function(event)
+    $('#save_task').click(function()
     {
-        event.preventDefault();
-        var data = new FormData($('#task-form'))
-        console.log(data)
+        var formdata = $("#task-form form").serializeArray();
+        var data = {};
+        $(formdata ).each(function(index, obj){
+            data[obj.name] = obj.value;
+        });
+        data["is_done"] = !!$("#checkbox_check").is(':checked');
+
+        let json = JSON.stringify(data);
+        console.log();
         $.ajax({
-            contentType: "application/json",
-            type: "POST",
+            data_type: "json",
+            contentType: "application/json; charset=utf-8",
+            method: "POST",
             url: '/tasks/',
-            data: data,
+            data: json,
             success: function(response)
             {
+                console.log("done");
                 $('#task-form').css('display', 'none');
+                window.location.reload(true);
             }
         });
         return false;

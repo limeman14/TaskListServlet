@@ -21,7 +21,7 @@ public class Task {
 
     private LocalDateTime dueDate;
 
-    private Boolean done;
+    private Boolean isDone;
 
     private Integer creatorId;
 
@@ -29,7 +29,7 @@ public class Task {
         this.taskName = taskName;
         this.description = description;
         this.dueDate = dueDate;
-        this.done = done;
+        this.isDone = done;
         this.creatorId = creatorId;
     }
 }
