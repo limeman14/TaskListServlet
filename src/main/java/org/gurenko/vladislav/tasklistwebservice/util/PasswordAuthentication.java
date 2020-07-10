@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * Simple class for hashing and checking passwords.
  * Uses PBKDF2 algorithm from Sun.
  *
- * @author Gurenko Vladislav
+ * Adapted from stackoverflow.com
  */
 public final class PasswordAuthentication {
 

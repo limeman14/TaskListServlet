@@ -29,6 +29,8 @@ public class LoginFilter implements Filter {
         //Если запрос пришел со страницы с входом или сессия не пуста даем добро следовать дальше
         //Если нет  - редирект на страницу входа
         if (loggedIn || loginAndRegisterRequest) {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             filterChain.doFilter(request, response);
         } else {
             response.sendRedirect(loginURI);

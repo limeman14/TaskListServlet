@@ -17,4 +17,16 @@
   <session-config>
     <session-timeout>10</session-timeout>
   </session-config>
+
+  <mime-mapping>
+    <extension>html</extension>
+    <mime-type>text/html;charset=UTF-8</mime-type>
+  </mime-mapping>
+
+  <jsp-config>
+    <jsp-property-group>
+      <url-pattern>*.jsp</url-pattern>
+      <page-encoding>UTF-8</page-encoding>
+    </jsp-property-group>
+  </jsp-config>
 </web-app>
