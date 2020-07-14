@@ -11,5 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonNaming(value = PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddParentGoalDto {
+    private Integer goalId;
+
     private Integer parentGoalId;
 }

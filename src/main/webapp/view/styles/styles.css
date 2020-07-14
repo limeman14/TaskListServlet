@@ -1,4 +1,4 @@
-#task-form, #task-change-form{
+#task-form, #task-change-form, #goal-form, #goal-change-form{
     display: none;
     align-items: center;
     justify-content: center;
@@ -11,21 +11,21 @@
     background-color: #88888878;
 }
 
-#task-form form, #task-change-form form {
+#task-form form, #task-change-form form , #goal-form form, #goal-change-form form{
     background-color: white;
     border: 1px solid #333;
     width: 300px;
     padding: 20px;
 }
 
-#task-form h2, #task-change-form h2  {
+#task-form h2, #task-change-form h2, #goal-form h2, #goal-change-form h2 {
     margin-top: 0;
 }
 
-#task-form label, #task-change-form label {
+#task-form label, #task-change-form label, #goal-form label, #goal-change-form label {
     display: block;
 }
 
-#task-form form, #task-change-form form > *{
+#task-form form, #task-change-form form, #goal-form, #goal-change-form > *{
     margin-bottom: 5px;
 }

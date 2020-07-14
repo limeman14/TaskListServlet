@@ -15,10 +15,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static org.gurenko.vladislav.tasklistwebservice.util.ServletUtilities.*;
 
 @WebServlet(urlPatterns = "/tasks/*", name = "TasksServlet")
 public class TasksServlet extends HttpServlet {
@@ -51,18 +50,18 @@ public class TasksServlet extends HttpServlet {
         if(checkPathInfo(pathInfo)){           //если нет числа после слеша в url - отправляем все задания пользователя
             List<Task> tasks = TaskRepo.getUserAllTasks(userId);
             resp.setStatus(HttpServletResponse.SC_OK);
-            sendAsJson(resp, tasks);
+            sendAsJson(objectMapper, resp, tasks);
             logger.info("For user with id " + userId + " found " + tasks.size() + " tasks.");
             return;
         }
         final String[] splits = pathInfo.split("/");
 
-        if (sendBadRequestError(resp, splits)) return;
+        if (checkForBadRequest(resp, splits)) return;
         final int taskId = Integer.parseInt(splits[1]);
         final Task task = TaskRepo.getUserTaskById(taskId, userId);
         if (task.getTaskName() != null) {                       //если задание по id было найдено - отправляем его одно
             resp.setStatus(HttpServletResponse.SC_OK);
-            sendAsJson(resp, task);
+            sendAsJson(objectMapper, resp, task);
             logger.info("Task with id " + taskId + " found.");
             return;
         }
@@ -85,7 +84,7 @@ public class TasksServlet extends HttpServlet {
             final Task task = objectMapper.readValue(collect, Task.class);
             if (TaskRepo.addTask(task) == 1) {
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-                sendAsJson(resp, "ok");
+                sendAsJson(objectMapper, resp, "ok");
                 logger.info("Task with name " + task.getTaskName() + " successfully created for user with id " + req.getSession().getAttribute("userId"));
             }
         }
@@ -106,22 +105,19 @@ public class TasksServlet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String pathInfo = req.getPathInfo();
         req.setCharacterEncoding("UTF-8");
-
         final String[] splits = pathInfo.split("/");
-        if (sendBadRequestError(resp, splits)) return;
+        if (checkForBadRequest(resp, splits)) return;
         final String newTaskText = getTextFromRequest(req);
         Task newTask = objectMapper.readValue(newTaskText, Task.class);
-
         //Проверка на то, существует ли указанная в теле запроса цель или нет, если её нет - устанавливаем дефолтную цель с номером 0
         if (GoalRepo.getUserGoalById(newTask.getGoalId(), newTask.getCreatorId()) == null) {
             newTask.setGoalId(0);
         }
-
         final int taskId = Integer.parseInt(splits[1]);
         final Task editedTask = TaskRepo.editTask(taskId, newTask);
         if (editedTask.getTaskName() != null) {
             resp.setStatus(HttpServletResponse.SC_OK);
-            sendAsJson(resp, editedTask);
+            sendAsJson(objectMapper, resp, editedTask);
             logger.info("Task with id " + taskId + " was successfully changed.");
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -139,65 +135,16 @@ public class TasksServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String[] splits = req.getPathInfo().split("/");
-        if (sendBadRequestError(resp, splits)) return;
+        if (checkForBadRequest(resp, splits)) return;
         final int taskId = Integer.parseInt(splits[1]);
         if (TaskRepo.deleteTask(taskId) == 1) {
             resp.setStatus(HttpServletResponse.SC_OK);
-            sendAsJson(resp, "Задание успешно удалено");
+            sendAsJson(objectMapper, resp, "Задание успешно удалено");
             logger.info("Task with " + taskId + " was successfully deleted.");
         }
         else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             logger.warn("Task with id " + taskId + " was not found.");
         }
-    }
-
-    /**
-     * Метод для отправки ответа в формате JSON
-     *
-     */
-    private void sendAsJson(
-            HttpServletResponse response,
-            Object obj) throws IOException {
-
-        response.setHeader("Content-Type", "application/json; charset=UTF-8");
-
-        String res = objectMapper.writeValueAsString(obj);
-
-        PrintWriter out = response.getWriter();
-
-        out.print(res);
-        out.flush();
-    }
-
-    /**
-     * Проверяет, существует ли указанный путь без последующих идентификаторов
-     *
-     */
-    private boolean checkPathInfo(String pathInfo) {
-        return pathInfo == null || pathInfo.equals("/");
-    }
-
-    /**
-     * Получает текст задания из запроса добавления/редактирования
-     *
-     */
-    private String getTextFromRequest(HttpServletRequest req) throws IOException {
-        return req.getReader()
-                .lines()
-                .collect(Collectors.joining(System.lineSeparator()));
-    }
-
-    /**
-     * Проверяет есть ли ошибка в запросе(более двух компонент в запросах get/put/delete)
-     *
-     * @throws IOException
-     */
-    private boolean sendBadRequestError(HttpServletResponse resp, String[] splits) throws IOException {
-        if (splits.length != 2) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return true;
-        }
-        return false;
     }
 }

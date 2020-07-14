@@ -97,7 +97,6 @@ public class GoalRepo {
         return res;
     }
 
-    //Как объединить в один запрос? MySQL при выполнении preparedStatement состоящего из всех указанных в методе запросов выбрасывает ошибки.
     public static int deleteGoal(int goalId) {
         int res = 0;
         String sqlToDeleteGoal = "DELETE FROM goals WHERE id = ?;";

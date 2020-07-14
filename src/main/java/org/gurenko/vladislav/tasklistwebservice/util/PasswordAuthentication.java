@@ -20,9 +20,7 @@ import java.util.regex.Pattern;
 public final class PasswordAuthentication {
 
     private static final int KEY_LENGTH = 128;
-
     private static final int ITERATIONS = 2048;
-
     private static final Pattern LAYOUT = Pattern.compile("(.{22})\\$(.{22})");
 
     /**
@@ -55,7 +53,7 @@ public final class PasswordAuthentication {
             throw new IllegalStateException("The stored password must have the form 'salt$hash'");
         }
         byte[] salt = Base64.getUrlDecoder().decode(matcher.group(1));
-        String inputPasswordHash = null;
+        String inputPasswordHash;
         try {
             inputPasswordHash = Base64.getUrlEncoder().withoutPadding().encodeToString(salt) + "$" + hash(inputPassword, salt);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

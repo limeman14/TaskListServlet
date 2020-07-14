@@ -15,9 +15,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static org.gurenko.vladislav.tasklistwebservice.util.ServletUtilities.*;
 
 @WebServlet(urlPatterns = "/goals/*", name = "GoalsServlet")
 public class GoalsServlet extends HttpServlet {
@@ -44,17 +44,17 @@ public class GoalsServlet extends HttpServlet {
         if(checkPathInfo(pathInfo)){           //если нет числа после слеша в url - отправляем все цели пользователя
             final List<Goal> goals = GoalRepo.getAllUserGoals(userId);
             resp.setStatus(HttpServletResponse.SC_OK);
-            sendAsJson(resp, goals);
+            sendAsJson(objectMapper, resp, goals);
             logger.info("For user with id " + userId + " found " + goals.size() + " goals.");
             return;
         }
         final String[] splits = pathInfo.split("/");
-        if (sendBadRequestError(resp, splits)) return;
+        if (checkForBadRequest(resp, splits)) return;
         final int goalId = Integer.parseInt(splits[1]);
         final Goal goal = GoalRepo.getUserGoalById(goalId, userId);
         if (goal != null) {                       //если цель по id была найдена - отправляем её одну
             resp.setStatus(HttpServletResponse.SC_OK);
-            sendAsJson(resp, goal);
+            sendAsJson(objectMapper, resp, goal);
             logger.info("Goal with id " + goalId + " found.");
             return;
         }
@@ -81,7 +81,7 @@ public class GoalsServlet extends HttpServlet {
                     .build();
             if (GoalRepo.addGoal(goal) == 1) {
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-                sendAsJson(resp, "Цель успешно создана");
+                sendAsJson(objectMapper, resp, "Цель успешно создана!");
                 logger.info("Goal with name " + goal.getDescription() + " successfully created for user with id " + req.getSession().getAttribute("userId"));
             }
         }
@@ -100,11 +100,11 @@ public class GoalsServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String[] splits = req.getPathInfo().split("/");
-        if (sendBadRequestError(resp, splits)) return;
+        if (checkForBadRequest(resp, splits)) return;
         final int goalId = Integer.parseInt(splits[1]);
         if (GoalRepo.deleteGoal(goalId) == 1) {
             resp.setStatus(HttpServletResponse.SC_OK);
-            sendAsJson(resp, "Цель успешно удалена, все задания связанные с ней теперь не относятся к какой-либо цели!");
+            sendAsJson(objectMapper, resp, "Цель успешно удалена, все задания связанные с ней теперь не относятся к какой-либо цели!");
             logger.info("Goal with " + goalId + " was successfully deleted.");
         }
         else {
@@ -114,7 +114,7 @@ public class GoalsServlet extends HttpServlet {
     }
 
     /**
-     * Добавление/удаление подцели у существующей цели, метод ПРОВЕРЯЕТ существует ли добавляемая подцель
+     * Добавление/удаление надцели у существующей цели, метод ПРОВЕРЯЕТ существует ли добавляемая надцель
      * Для того, чтобы удалить подцель, необходимо установить значение goalId = 0
      * - 200 - если все в порядке, цель отредактирована
      * - 404 - если цель не найдена
@@ -124,7 +124,7 @@ public class GoalsServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String[] splits = req.getPathInfo().split("/");
-        if (sendBadRequestError(resp, splits)) return;
+        if (checkForBadRequest(resp, splits)) return;
         final int goalId = Integer.parseInt(splits[1]);
         final String content = getTextFromRequest(req);
         final int parentGoalId = objectMapper.readValue(content, AddParentGoalDto.class).getParentGoalId();
@@ -135,7 +135,7 @@ public class GoalsServlet extends HttpServlet {
                 GoalRepo.addOrRemoveParentGoal(parentGoalId, goalId) == 1)                                //Добавление/удаление подцели
         {
                 resp.setStatus(HttpServletResponse.SC_OK);
-                sendAsJson(resp, "Главная цель успешно добавлена ИЛИ удалена!");
+                sendAsJson(objectMapper, resp, "Главная цель успешно добавлена ИЛИ удалена!");
                 logger.info("Added parent goal with id " + parentGoalId + " to goal with id " + goalId);
         }
         else {
@@ -144,47 +144,4 @@ public class GoalsServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Отправляет ответ в виде JSON
-     */
-    private void sendAsJson(
-            HttpServletResponse response,
-            Object obj) throws IOException {
-        response.setHeader("Content-Type", "application/json; charset=UTF-8");
-        String res = objectMapper.writeValueAsString(obj);
-        PrintWriter out = response.getWriter();
-        out.print(res);
-        out.flush();
-    }
-
-    /**
-     * Проверяет, существует ли указанный путь без последующих идентификаторов
-     *
-     */
-    private boolean checkPathInfo(String pathInfo) {
-        return pathInfo == null || pathInfo.equals("/");
-    }
-
-    /**
-     * Получает текст цели из запроса добавления/редактирования
-     *
-     */
-    private String getTextFromRequest(HttpServletRequest req) throws IOException {
-        return req.getReader()
-                .lines()
-                .collect(Collectors.joining(System.lineSeparator()));
-    }
-
-    /**
-     * Проверяет есть ли ошибка в запросе(более двух компонент в запросах get/put/delete)
-     *
-     *
-     */
-    private boolean sendBadRequestError(HttpServletResponse resp, String[] splits) throws IOException {
-        if (splits.length != 2) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return true;
-        }
-        return false;
-    }
 }
